@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membresia</title>
+
+    <!--Se extrae la libreria para poder usar Vue sin necesidad de descargarlo-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--La libreria Axios nos permite enviar y recibir datos de la API-->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!--Nos permiten usar todas sus clases e iconos de Vue-->
+    <link href="https://unpkg.com/primevue/resources/themes/saga-blue/theme.css " rel="stylesheet">
+    <link href="https://unpkg.com/primevue/resources/primevue.min.css " rel="stylesheet">
+    <link href="https://unpkg.com/primeicons/primeicons.css " rel="stylesheet">
+    <link href="https://unpkg.com/primeflex/primeflex.css " rel="stylesheet">
+
+    <!--Solicitamos los componentes que vamos a ultilizar-->
+    <script src="https://unpkg.com/primevue/components/datatable/datatable.umd.min.js"></script>    
+    <script src="https://unpkg.com/primevue/components/inputtext/inputtext.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue/components/column/column.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue/components/button/button.umd.min.js"></script>
+
+    <link href="css/membresia.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app" class="p-grid p-dir-col p-align-center p-p-4">
+        <!--:value llama al arreglo donde se almacenan los datos de la tabla-->
+        <p-datatable :value="membresias" :paginator="true" :rows="10" :filters="filters"
+            paginator-Template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+            :rows-Per-Page-Options="[10,20,50]"
+            current-Page-Report-Template="Mostrando {first} - {last} de {totalRecords}">
+            <!--Se mostrará por encima de la tabla-->
+            <template #header>
+                <h2>Membresias</h2>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search" ></i>
+                    <!--Se le informa que los valores de la tabla se almacenan en 'filters' y con ['global'] se informa que todos 
+                        los valores de todos los campos serán tomados en cuenta a la hora de buscar-->
+                    <p-inputtext v-model="filters['global']" placeholder="Global Search" ></p-inputtext>
+                </span>
+            </template>
+            <!--En field se escribe la key del arreglo, este nombre debe ser el mismo nombre que se le dio en json a los valores 
+                en el struct (estructura/estructura.go linea 5)-->
+            <p-column field="idMembresia" header="Id" sortable></p-column>
+            <!-- en este caso está en (estructura/estructura.go linea 6)-->
+            <p-column field="tipoMembresia" header="Tipo Membresia" sortable></p-column>
+            <!--Lo que se mostrará si no existe ningún valor en el arreglo-->
+            <template #empty>
+                Ninguna membresia encontrada
+            </template>
+        </p-datatable>
+
+    </div>
+
+    <script>
+        var vm = new Vue({
+             //Todos los componentes que solicitamos y como los llamamos en el documento
+            components: {
+                'p-datatable': datatable,
+                'p-button': button,
+                'p-column': column,
+                'p-inputtext': inputtext,
+            },
+            //todos los nombres de los objetos y variables a utilizar con su valor inicial
+            data: {
+                txtMembresia: "",
+                filters: {},
+                membresias: null
+            },
+            //Todos los eventos que necestimos para mostrar la página
+            mounted() {
+                axios.get("/api/get-membresia")
+                    .then(resp => this.membresias = resp.data)
+            }
+            //En que elemento se montara nuestro codigo Vue
+        }).$mount('#app');
+    </script>
+
+</body>
+
+</html>

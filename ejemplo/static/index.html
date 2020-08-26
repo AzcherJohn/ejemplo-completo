@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membresia</title>
+    <!--Se extrae la libreria para poder usar Vue sin necesidad de descargarlo-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--La libreria Axios nos permite enviar y recibir datos de la API-->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!--Nos permiten usar todas sus clases e iconos de Vue-->
+    <link href="https://unpkg.com/primevue/resources/themes/saga-blue/theme.css " rel="stylesheet">
+    <link href="https://unpkg.com/primevue/resources/primevue.min.css " rel="stylesheet">
+    <link href="https://unpkg.com/primeicons/primeicons.css " rel="stylesheet">
+    <link href="https://unpkg.com/primeflex/primeflex.css " rel="stylesheet">
+
+    <!--Solicitamos los componentes que vamos a ultilizar-->
+    <script src="https://unpkg.com/primevue/components/inputtext/inputtext.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue/components/button/button.umd.min.js"></script>
+
+    <link href="css/membresia.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app"  class="p-grid p-dir-col p-align-center p-p-4">
+        <div class="p-col" id="contenedor">
+            <div class="p-field p-grid">
+                <label for="txtMembresia" class="p-col-fixed" style="width:100px">Tipo membresia</label>
+                <div class="p-col">
+                    <!--La etiqueta 'v-model' es la forma en que Vue identifica los objetos con los que puede interactuar-->
+                    <p-inputtext id="txtMembresia" type="text" v-model="txtMembresia" />
+                </div>
+            </div>
+            <div class="p-grid p-justify-around">
+                <!--'@click' hace llamar a funciones o eventos-->
+                <p-button label="Ver membresias" class="p-button-text" @click="verMembresias()" ></p-button>
+                <p-button label="Ingresar" icon="pi pi-sign-in" class="p-button-ml" @click="enviarDatos()" ></p-button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        var vm = new Vue({
+            //Todos los componentes que solicitamos y como los llamamos en el documento
+            components: {
+                'p-inputtext': inputtext,
+                'p-button' : button
+            },
+            //todos los nombres de los objetos y variables a utilizar con su valor inicial
+            data: {
+                txtMembresia: "",
+            },
+            //todos los metodos, funciones o eventos
+            methods:{
+                enviarDatos(){
+                  axios.post("/api/post-membresia", {
+                    //los datos a enviar, primero que key se le pone y despues su valor
+                    //El nombre de la key a poner corresponde al mismo nombre que se le dio en json a los valores 
+                    //en el struct (estructura/estructura.go linea 6)
+                    tipoMembresia: this.txtMembresia
+                  })
+                  //Si el envio de datos es exitoso
+                  .then((resp) => {
+                      console.log(resp.data);
+                  })
+                  //Si hubo algun error en el envio de datos o en la conexion
+                  .catch(function(error){
+                      console.log(error);
+                  })
+                },
+                verMembresias(){
+                    window.location.href = 'getMembresia.html';
+                }
+            }
+            //En que elemento se montara nuestro codigo Vue
+        }).$mount('#app');
+    </script>
+    
+</body>
+
+</html>
